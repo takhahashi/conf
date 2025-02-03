@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 if __name__ == "__main__":
 
     @hydra.main(
-            config_path='configs'
+        config_path='configs',
         config_name='test',
     )
     def main(config):
