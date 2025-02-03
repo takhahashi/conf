@@ -15,6 +15,8 @@ if __name__ == "__main__":
         auto_generated_dir = os.getcwd()
         log.info(f"Work dir: {auto_generated_dir}")
         os.chdir(hydra.utils.get_original_cwd())
+        print(os.getcwd())
+
 
         #run_glue_for_model_series_fast(config, auto_generated_dir)
 
