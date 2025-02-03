@@ -22,7 +22,7 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
     datasets = load_data(data_args)
     log.info("Done with loading the dataset.")
     print(datasets)
-    print(datasets["train"]["label"])
+    print(datasets["train"]["label"].type())
     exit()
 
     # Labels
