@@ -1,7 +1,7 @@
 task_name: 'riken'
-question_id_pref: 'Y14'  
-question_id_suff: '1-2_1_3' 
-score_id: 'A_Score'
+question_id_pref: ???
+question_id_suff: ???
+score_id: ???
 fold: ???
 max_seq_length: 512
 data_path: /content/drive/MyDrive/GoogleColab/SA/ShortAnswer/${data.question_id_pref}/${data.question_id_suff}_data/${data.question_id_pref}_${data.question_id_suff}_fold{data.fold}
