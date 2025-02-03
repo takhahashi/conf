@@ -11,6 +11,7 @@ if __name__ == "__main__":
         config_name='configs/test.yaml',
     )
     def main(config):
+        print(config)
         print(os.getcwd())
 
     main()
