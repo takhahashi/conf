@@ -46,7 +46,7 @@ def load_riken(config):
     high = upper_score_dic[config.question_id_suff][config.score_id]
     low = 0
     #/${sas.prompt_id}/${sas.question_id}_data/${sas.prompt_id}_${sas.question_id}_fold${training.fold}/train_data.json
-
+    print(config.data_path)
     train_datapath = config.data_path + '/train_data.json'
     with open(train_datapath) as f:
         train_dataf = json.load(f)
