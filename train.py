@@ -200,7 +200,7 @@ def main(config):
     else:
         args_train = config.training
     
-    args_data = config
+    args_data = config.data
 
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
 
