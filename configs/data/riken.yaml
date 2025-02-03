@@ -4,4 +4,4 @@ question_id_suff: ???
 score_id: ???
 fold: ???
 max_seq_length: 512
-data_path: /content/drive/MyDrive/GoogleColab/SA/ShortAnswer/${data.question_id_pref}/${data.question_id_suff}_data/${data.question_id_pref}_${data.question_id_suff}_fold{data.fold}
+data_path: /content/drive/MyDrive/GoogleColab/SA/ShortAnswer/${data.question_id_pref}/${data.question_id_suff}_data/${data.question_id_pref}_${data.question_id_suff}_fold${data.fold}
