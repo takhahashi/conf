@@ -6,6 +6,7 @@ import torch
 from utils.utils_data import (
     load_data,
 )
+from utils.utils_train import CustomTrainingArgs
 
 log = logging.getLogger(__name__)
 
@@ -193,7 +194,7 @@ def main(config):
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
 
-    args_train = update_config(TrainingArguments, config.training)
+    args_train = update_config(CustomTrainingArgs, config.training)
     args_data = config
 
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
