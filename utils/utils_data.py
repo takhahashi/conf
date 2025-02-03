@@ -43,7 +43,7 @@ def load_asap(config):
 
 
 def load_riken(config):
-    high = upper_score_dic[config.prompt_id][config.score_id]
+    high = upper_score_dic[config.question_id_suff][config.score_id]
     low = 0
     #/${sas.prompt_id}/${sas.question_id}_data/${sas.prompt_id}_${sas.question_id}_fold${training.fold}/train_data.json
 
