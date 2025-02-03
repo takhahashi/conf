@@ -15,5 +15,6 @@ if __name__ == "__main__":
     def main(config):
         print(config)
         print(os.getcwd())
+        print
 
     main()
