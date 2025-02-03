@@ -10,6 +10,7 @@ def load_data(config):
         datasets = load_asap(config)
     elif "riken" in config.task_name:
         datasets = load_riken(config)
+    return datasets
 
 def load_asap(config):
     low, high = asap_ranges[config.prompt_id]
