@@ -64,8 +64,6 @@ def load_riken(config):
         test_dataf = json.load(f)
     test_x = [row['mecab'].replace(' ','') for row in test_dataf]
     test_y = [row[config.score_id] for row in test_dataf]
-    for i in train_y:
-        print(i)
     
     datasets = DatasetDict(
         {
