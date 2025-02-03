@@ -194,7 +194,11 @@ def main(config):
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
 
-    args_train = update_config(CustomTrainingArgs, config.training)
+    if config.model.model_type == 'hybrid':
+        args_train = update_config(CustomTrainingArgs, config.training)
+    else:
+        args_train = config.training
+    
     args_data = config
 
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
