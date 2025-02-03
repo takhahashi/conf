@@ -2,6 +2,7 @@ import os
 import hydra
 import logging
 import pdb
+from train_config import TrainingArgs
 
 log = logging.getLogger(__name__)
 
