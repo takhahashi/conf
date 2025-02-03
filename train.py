@@ -19,10 +19,9 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
     ############### Loading dataset ######################
 
     log.info("Load dataset.")
-    datasets = load_data(data_args)
+    datasets = load_data(data_args, config.model.model_type)
     log.info("Done with loading the dataset.")
-    print(datasets)
-    print(datasets["train"]["label"].type())
+    print(datasets["test"]["label"])
     exit()
 
     # Labels
