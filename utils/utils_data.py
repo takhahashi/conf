@@ -52,21 +52,21 @@ def load_riken(config, model_type):
     with open(train_datapath) as f:
         train_dataf = json.load(f)
     train_x = [row['mecab'].replace(' ','') for row in train_dataf]
-    score_list = [row[config.data.score_id] for row in train_dataf]
+    score_list = [row[config.score_id] for row in train_dataf]
     train_y = get_model_friendly_scores(model_type, np.array(score_list), high, low).tolist()
 
     validation_datapath = config.data_path + '/dev_data.json'
     with open(validation_datapath) as f:
         validation_dataf = json.load(f)
     validation_x = [row['mecab'].replace(' ','') for row in validation_dataf]
-    score_list = [row[config.data.score_id] for row in validation_dataf]
+    score_list = [row[config.score_id] for row in validation_dataf]
     validation_y = get_model_friendly_scores(model_type, np.array(score_list), high, low).tolist()
     
     test_datapath = config.data_path + '/test_data.json'
     with open(test_datapath) as f:
         test_dataf = json.load(f)
     test_x = [row['mecab'].replace(' ','') for row in test_dataf]
-    score_list = [row[config.data.score_id] for row in test_dataf]
+    score_list = [row[config.score_id] for row in test_dataf]
     test_y = get_model_friendly_scores(model_type, np.array(score_list), high, low).tolist()
 
     
