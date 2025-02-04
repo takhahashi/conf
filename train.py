@@ -7,6 +7,7 @@ from utils.utils_data import (
     load_data,
 )
 from utils.utils_train import CustomTrainingArgs
+from utils.score_range import upper_score_dic, asap_ranges
 
 log = logging.getLogger(__name__)
 
@@ -21,27 +22,14 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
     log.info("Load dataset.")
     datasets = load_data(data_args, config.model.model_type)
     log.info("Done with loading the dataset.")
-    print(datasets["test"]["label"])
-    exit()
 
-    # Labels
-    if data_args.task_name in glue_datasets:
-        label_list = datasets["train"].features["label"].names
-    else:
-        label_list = datasets["train"].unique("label")
-        label_list.sort()  # Let's sort it for determinism
-
-    if config.task_name == 'asap':
-        low, high = get_score_range(config.task_name, config.prompt_id)
-        num_labels = high - low + 1
-    elif config.task_name == 'riken':
-        high = upper_score_dic[config.prompt_id][config.score_id]
+    if data_args.task_name == "riken":
+        high = upper_score_dic[data_args.question_id_pref][data_args.question_id_suff]
         low = 0
-        num_labels = high - low + 1
-    else:
-        num_labels = len(label_list)
-    log.info(f"Number of labels: {num_labels}")
-
+        num_labels = high - low
+    elif data_args.task_name == "asap":
+        low, high = asap_ranges[data_args.prompt_id]
+        num_labels = high - low
     ################ Loading model #######################
 
     model, tokenizer = create_model(num_labels, model_args, data_args, ue_args, config)
