@@ -80,6 +80,7 @@ def load_riken(config, model_type):
     return datasets
 
 def get_model_friendly_scores(model_type, score_array, high, low):
+    print(model_type)
     if model_type == "regression":
         score_array = (np.array(score_array) - low) / (high - low)
     else:
