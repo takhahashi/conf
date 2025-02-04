@@ -8,6 +8,7 @@ from utils.utils_data import (
 )
 from utils.utils_train import CustomTrainingArgs
 from utils.score_range import upper_score_dic, asap_ranges
+from utils.utils_models import create_model
 
 log = logging.getLogger(__name__)
 
@@ -32,67 +33,19 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
         num_labels = high - low
     ################ Loading model #######################
 
-    model, tokenizer = create_model(num_labels, model_args, data_args, ue_args, config)
+    model, tokenizer = create_model(num_labels, model_args, data_args, config)
 
     ################ Preprocessing the dataset ###########
-
-    sentence1_key, sentence2_key = task_to_keys[data_args.task_name]
-    sentence2_key = (
-        None
-        if (config.task_name in ["bios", "trustpilot", "jigsaw_race", "sepsis_ethnicity", "asap", "riken"])
-        else sentence2_key
-    )
-    max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
-    
-
-    label_to_id = None
-    if (
-        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-        and data_args.task_name is not None
-    ):
-        # Some have all caps in their config, some don't.
-        label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
-        if list(sorted(label_name_to_id.keys())) == list(sorted(label_list)):
-            label_to_id = {
-                i: int(label_name_to_id[label_list[i]]) for i in range(num_labels)
-            }
-        else:
-            log.warning(
-                "Your model seems to have been trained with labels, but they don't match the dataset: ",
-                f"model labels: {list(sorted(label_name_to_id.keys()))}, dataset labels: {list(sorted(label_list))}."
-                "\nIgnoring the model labels as a result.",
-            )
-    elif data_args.task_name is None:
-        label_to_id = {v: i for i, v in enumerate(label_list)}
-
-    f_preprocess = lambda examples: preprocess_function(
-        label_to_id, sentence1_key, sentence2_key, tokenizer, max_seq_length, examples
-    )
-
-    datasets = datasets.map(
-        f_preprocess,
-        batched=True,
-        load_from_cache_file=not data_args.overwrite_cache,
-    )
-    if "idx" in datasets.column_names["train"]:
-        datasets = datasets.remove_columns("idx")
+    def tokenize_function(examples):
+        return tokenizer(examples["text"], padding="max_length", truncation=True)
+    datasets = datasets.map(tokenize_function, batched=True)
 
     ################### Training ####################################
-    if config.reset_params:
-        reset_params(model)
-
-    if ue_args.dropout_type == "DC_MC":
-        convert_dropouts(model, ue_args)
-
     train_dataset = datasets["train"]
-    train_indexes = list(range(len(train_dataset)))
-    calibration_dataset = None
     eval_dataset = datasets["validation"]
 
     log.info(f"Training dataset size: {len(train_dataset)}")
     log.info(f"Eval dataset size: {len(eval_dataset)}")
-    
-    test_dataset = datasets["test"]
 
     metric = load_metric(
         "accuracy", keep_in_memory=True, cache_dir=config.cache_dir
