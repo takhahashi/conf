@@ -12,7 +12,6 @@ training:
     save_strategy: epoch
     save_total_limit: 1
     save_safetensors: True
-    gradient_accumulation_steps: 4
     lamb: ???
     margin: ??? 
     lamb_intra: ???
