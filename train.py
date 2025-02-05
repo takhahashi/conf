@@ -115,10 +115,11 @@ def main(config):
         args_train = update_config(TrainingArguments, config.training)
     
     args_data = config.data
+
+    args_train.accelerator_config = {'split_batches': False, 'dispatch_batches': None, 'even_batches': False, 'use_seedable_sampler': False, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
     print("==============")
     print(args_train.accelerator_config)
     print("==============")
-
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
 
 
