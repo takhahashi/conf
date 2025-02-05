@@ -27,6 +27,7 @@ def get_trainer(
     data_collator=None,
     callbacks=None,
 ) -> "Trainer":
+    """
     if model.__class__.__name__ == "HybridBert":
         trainer = HybridTrainer(
             model=model,
@@ -38,15 +39,16 @@ def get_trainer(
             callbacks=callbacks,
         )
     else:
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=train_dataset,
-            eval_dataset=eval_dataset,
-            compute_metrics=metric_fn,
-            data_collator=data_collator,
-            callbacks=callbacks,
-        )
+    """
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        compute_metrics=metric_fn,
+        data_collator=data_collator,
+        callbacks=callbacks,
+    )
     return trainer
 
 
