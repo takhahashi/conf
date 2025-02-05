@@ -23,7 +23,7 @@ class HybridTrainingArgs(TrainingArguments):
     lamb: Optional[float] = None
     margin: Optional[float] = None
     lamb_intra: Optional[float] = None
-    accelerator_config: accelerator_config
+    accelerator_config: AcceleratorConfig
 
 def get_trainer(
     model,
