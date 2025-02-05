@@ -119,7 +119,7 @@ def main(config):
     
     args_data = config.data
     print("==============")
-    print(args_train)
+    print(args_train.accelerator_config)
     print("==============")
 
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
