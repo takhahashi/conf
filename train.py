@@ -119,7 +119,7 @@ def main(config):
 
     setattr(args_train, 'accelerator_config', AcceleratorConfig())
     print("==============")
-    print(args_train.accelerator_config)
+    print(args_train)
     print("==============")
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
 
