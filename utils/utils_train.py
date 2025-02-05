@@ -13,16 +13,17 @@ from typing import Optional
 from utils.model import HybridOutput
 
 
-@dataclass
 class AcceleratorConfig:
-    gradient_accumulation_kwargs: Optional[float] = None
+    def __init__(self):
+        self.gradient_accumulation_kwargs = None
+accelerator_config = AcceleratorConfig()
 
 @dataclass
 class HybridTrainingArgs(TrainingArguments):
     lamb: Optional[float] = None
     margin: Optional[float] = None
     lamb_intra: Optional[float] = None
-    accelerator_config: AcceleratorConfig
+    accelerator_config: accelerator_config
 
 def get_trainer(
     model,

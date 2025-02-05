@@ -108,9 +108,6 @@ def main(config):
     auto_generated_dir = os.getcwd()
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
-    print("==============")
-    print(config.training)
-    print("==============")
 
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs, config.training)
