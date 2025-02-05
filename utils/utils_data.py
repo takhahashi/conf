@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
+import torch
 import json
+from collections import defaultdict
 from datasets import Dataset, DatasetDict
 
 from utils.score_range import upper_score_dic, asap_ranges
@@ -85,4 +87,27 @@ def get_model_friendly_scores(model_type, score_array, high, low):
         score_array = (np.array(score_array) - low) / (high - low)
     else:
         score_array = score_array - low
-    return score_array        
+    return score_array     
+
+def data_collator(list_of_data):
+    pad_max_len = torch.tensor(0)
+    for data in list_of_data:
+        if(torch.count_nonzero(torch.tensor(data['attention_mask'])) > pad_max_len):
+            pad_max_len = torch.count_nonzero(torch.tensor(data['attention_mask']))
+    batched_tensor = defaultdict(list)
+    labels = []
+    for data in list_of_data:
+        for k, v in data.items():
+            if k != 'label':
+                batched_tensor[k].append(torch.tensor(v[:pad_max_len]))
+            else:
+                labels.append(torch.tensor(v))
+    for k, v in batched_tensor.items():
+        batched_tensor[k] = torch.stack(v)
+    if len(labels) != 0:
+        if labels[0].shape  != torch.tensor(1).shape:
+            batched_tensor['labels'] = torch.stack(labels)
+        else:
+            batched_tensor['labels'] = torch.tensor(labels)
+
+    return dict(batched_tensor)   

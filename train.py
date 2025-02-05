@@ -3,14 +3,38 @@ import hydra
 import logging
 from transformers import TrainingArguments
 import torch
+import numpy as np
+from datasets import load_metric
 from utils.utils_data import (
     load_data,
+    data_collator,
 )
-from utils.utils_train import CustomTrainingArgs
+from transformers import (
+    EvalPrediction,
+)
+from utils.utils_train import (
+    CustomTrainingArgs,
+    get_trainer,
+    HybridModelCallback,
+)
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
 
 log = logging.getLogger(__name__)
+
+
+def compute_metrics(is_regression, metric, label_num, p: EvalPrediction):
+
+    preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+    preds = np.squeeze(np.round(p.predictions[1] * (label_num - 1))) if is_regression else np.argmax(preds, axis=1)
+    
+    result = metric.compute(predictions=preds, references=p.label_ids)
+
+    if len(result) > 1:
+        result["combined_score"] = np.mean(list(result.values())).item()
+
+    return result
+
 
 def train_eval_glue_model(config, training_args, data_args, work_dir=None):
     torch.manual_seed(config.model.id)
@@ -37,132 +61,38 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
 
     ################ Preprocessing the dataset ###########
 
-    sentence1_key, sentence2_key = task_to_keys[data_args.task_name]
-    sentence2_key = (
-        None
-        if (config.task_name in ["bios", "trustpilot", "jigsaw_race", "sepsis_ethnicity", "asap", "riken"])
-        else sentence2_key
-    )
-    max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
-    
+    def tokenize_function(examples):
+        return tokenizer(examples['text'], padding="max_length", truncation=True, max_length=512)  # 512は適宜変更
 
-    label_to_id = None
-    if (
-        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-        and data_args.task_name is not None
-    ):
-        # Some have all caps in their config, some don't.
-        label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
-        if list(sorted(label_name_to_id.keys())) == list(sorted(label_list)):
-            label_to_id = {
-                i: int(label_name_to_id[label_list[i]]) for i in range(num_labels)
-            }
-        else:
-            log.warning(
-                "Your model seems to have been trained with labels, but they don't match the dataset: ",
-                f"model labels: {list(sorted(label_name_to_id.keys()))}, dataset labels: {list(sorted(label_list))}."
-                "\nIgnoring the model labels as a result.",
-            )
-    elif data_args.task_name is None:
-        label_to_id = {v: i for i, v in enumerate(label_list)}
-
-    f_preprocess = lambda examples: preprocess_function(
-        label_to_id, sentence1_key, sentence2_key, tokenizer, max_seq_length, examples
-    )
-
-    datasets = datasets.map(
-        f_preprocess,
-        batched=True,
-        load_from_cache_file=not data_args.overwrite_cache,
-    )
-    if "idx" in datasets.column_names["train"]:
-        datasets = datasets.remove_columns("idx")
+    # datasets に対してトークナイザーを適用
+    datasets = datasets.map(tokenize_function, batched=True)
 
     ################### Training ####################################
-    if config.reset_params:
-        reset_params(model)
-
-    if ue_args.dropout_type == "DC_MC":
-        convert_dropouts(model, ue_args)
-
-    train_dataset = datasets["train"]
-    train_indexes = list(range(len(train_dataset)))
-    calibration_dataset = None
-    eval_dataset = datasets["validation"]
-
-    log.info(f"Training dataset size: {len(train_dataset)}")
-    log.info(f"Eval dataset size: {len(eval_dataset)}")
-    
-    test_dataset = datasets["test"]
 
     metric = load_metric(
-        "accuracy", keep_in_memory=True, cache_dir=config.cache_dir
+        "accuracy"
     )
+    metric_fn = lambda p: compute_metrics(config.model.model_type, metric, num_labels, p)
 
-    is_regression = False
-    metric_fn = lambda p: compute_metrics(is_regression, metric, num_labels, p)
-
-    if config.do_train:
-
-
-        #training_args.warmup_steps = int(
-        #    training_args.warmup_ratio  # TODO:
-        #    * len(train_dataset)
-        #    * training_args.num_train_epochs
-        #    / training_args.train_batch_size
-        #)
-        #log.info(f"Warmup steps: {training_args.warmup_steps}")
-        #training_args.logging_steps = training_args.warmup_steps
-
-
-        training_args.weight_decay_rate = training_args.weight_decay
-
-    data_collator = simple_collate_fn
-    training_args = update_config(training_args, {'fp16':True})
-    
-    use_sngp = ue_args.ue_type == "sngp"
-    use_selective = "use_selective" in ue_args.keys() and ue_args.use_selective
-    
-    training_args = update_config(training_args, {'load_best_model_at_end':True})
-    training_args = update_config(training_args, {'eval_strategy':'epoch'})
-    training_args = update_config(training_args, {'metric_for_best_model':'eval_loss'})
-    training_args = update_config(training_args, {'save_strategy':'epoch'})
-    if "patience" in config.training.keys():
-        earlystopping = EarlyStoppingCallback(early_stopping_patience=int(config.training.patience))
-        callbacks = [earlystopping]
-    else:
-        callbacks = None
     #################### Training ##########################
     trainer = get_trainer(
-        model_args.model_type,
-        use_selective,
-        use_sngp,
         model,
         training_args,
-        train_dataset,
-        eval_dataset,
+        datasets["train"],
+        datasets["validation"],
         metric_fn,
         data_collator = data_collator,
-        callbacks=callbacks,
+        callbacks=None,
     )
     if model_args.model_type == 'hybrid':
         trainer.add_callback(HybridModelCallback(hb_model=model, trainer=trainer)) 
-    if ue_args.reg_type == 'ExpEntropyLearning':
-        trainer.add_callback(ExpEntCallback(trainer=trainer)) 
-
     
-    if config.do_train:
-        trainer.train(
-            model_path=model_args.model_name_or_path
-            if os.path.isdir(model_args.model_name_or_path)
-            else None
-        )
-        # Rewrite the optimal hyperparam data if we want the evaluation metrics of the final trainer
-        if config.do_eval:
-            evaluation_metrics = trainer.evaluate()
-        if work_dir != None:
-            trainer.save_model(work_dir)
-            tokenizer.save_pretrained(work_dir)
+    trainer.train(
+        model_path=model_args.model_name_or_path
+        if os.path.isdir(model_args.model_name_or_path)
+        else None
+    )
+
 
 
 
