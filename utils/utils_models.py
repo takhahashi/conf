@@ -36,9 +36,7 @@ def create_model(num_labels, model_args, data_args, config):
             return (
                 models_constructors[key](
                     model_config,
-                    tokenizer,
                     model_base_name,
-                    config,
                 ),
                 tokenizer,
             )
