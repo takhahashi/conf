@@ -1,33 +1,27 @@
 from transformers import (
     AutoConfig,
+    AutoModelForSequenceClassification,
     AutoTokenizer,
 )
-from utils.classification_models import (
-    create_bert,
-    create_deberta,
-    create_roberta,
-    create_distilbert,
-)
+from utils.score_range import upper_score_dic, asap_ranges
 from utils.model import HybridBert
 import logging
 
 log = logging.getLogger(__name__)
 
-def create_model(num_labels, model_args, data_args, config):
+def create_model(num_labels, model_args, data_args, ue_args, config):
 
     model_base_name = model_args.model_name_or_path
-
     model_config = AutoConfig.from_pretrained(
         model_base_name,
         num_labels=num_labels,
         finetuning_task=data_args.task_name,
-        cache_dir=config.cache_dir,
         model_type=model_args.model_type,
     )
     tokenizer = AutoTokenizer.from_pretrained(
         model_base_name,
+        cache_dir=config.cache_dir,
     )
-
     models_constructors = {
         "roberta": create_roberta,
         "deberta": create_deberta,
@@ -39,19 +33,21 @@ def create_model(num_labels, model_args, data_args, config):
             return (
                 models_constructors[key](
                     model_config,
+                    tokenizer,
+                    ue_args,
                     model_base_name,
                     config,
                 ),
                 tokenizer,
             )
-    raise ValueError(f"Cannot find model with this name or path: {model_base_name}")
+    raise ValueError(f"Cannot find model with this name or path: {base_model_name}")
 
 def build_model(model_class, model_path_or_name, reg_type=None, **kwargs):
     if reg_type == 'label_distribution':
         return model_class.from_pretrained(model_path_or_name, reg_type, **kwargs)
     else:
         return model_class.from_pretrained(model_path_or_name, **kwargs)
-
+    
 def create_bert(
     model_config,
     model_path_or_name,
@@ -63,10 +59,10 @@ def create_bert(
         cache_dir=config.cache_dir,
     )
     if model_config.model_type == 'hybrid':
-        model = build_model(
-            HybridBert, model_config._name_or_path, **model_kwargs
-        )
-        log.info("loaded HybridBERT constraction")
+            model = build_model(
+                HybridBert, model_config._name_or_path, **model_kwargs
+            )
+            log.info("loaded HybridBERT constraction")
     elif model_config.model_type == 'regression':
         model = build_model(
             BertForSequenceRegression, model_path_or_name, **model_kwargs

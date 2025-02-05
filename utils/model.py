@@ -105,7 +105,7 @@ class ScaleDiffBalance:
     
 
 class HybridBert(BertForSequenceClassification):
-    def __init__(self, config, reg_type=None):
+    def __init__(self, config):
         super().__init__(config)
         self.regressor = nn.Linear(config.hidden_size, 1)
         self.sigmoid = nn.Sigmoid()
@@ -177,10 +177,3 @@ class HybridBert(BertForSequenceClassification):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
-    
-    def create_distribution_label(self, reg_std_err, labels):
-        distribution_label = []
-        for mu, std in zip(labels, reg_std_err):
-            norm_pdf_label = [stats.norm.pdf(x=i, loc=mu, scale=std) for i in range(self.num_labels)]
-            distribution_label.append(norm_pdf_label)
-        return torch.tensor(distribution_label).softmax(dim=1).cuda()
