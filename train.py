@@ -15,6 +15,7 @@ from utils.utils_train import (
     HybridTrainingArgs,
     get_trainer,
     HybridModelCallback,
+    AcceleratorConfig,
 )
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
@@ -116,8 +117,7 @@ def main(config):
     
     args_data = config.data
 
-    setattr(args_train, 'accelerator_config', {'split_batches': False, 'dispatch_batches': None, 'even_batches': False, 'use_seedable_sampler': False, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False})
-
+    setattr(args_train, 'accelerator_config', AcceleratorConfig())
     print("==============")
     print(args_train.accelerator_config)
     print("==============")
