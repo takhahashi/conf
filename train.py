@@ -116,7 +116,7 @@ def main(config):
         args_train = update_config(HybridTrainingArgs, config.training)
     else:
     """
-    args_train = config.training
+    args_train = update_config(TrainingArguments, config.training)
     
     args_data = config.data
 
