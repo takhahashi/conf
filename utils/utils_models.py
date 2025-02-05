@@ -4,7 +4,11 @@ from transformers import (
     AutoTokenizer,
 )
 from utils.score_range import upper_score_dic, asap_ranges
-from utils.model import HybridBert
+from utils.model import (
+    HybridBert,
+    BertForSequenceRegression,
+    BertForSequenceNormalRegression,
+)
 import logging
 
 log = logging.getLogger(__name__)
@@ -38,7 +42,7 @@ def create_model(num_labels, model_args, data_args, config):
                 ),
                 tokenizer,
             )
-    raise ValueError(f"Cannot find model with this name or path: {base_model_name}")
+    raise ValueError(f"Cannot find model with this name or path: {model_base_name}")
 
 def build_model(model_class, model_path_or_name, reg_type=None, **kwargs):
     if reg_type == 'label_distribution':
@@ -49,7 +53,6 @@ def build_model(model_class, model_path_or_name, reg_type=None, **kwargs):
 def create_bert(
     model_config,
     model_path_or_name,
-    config,
 ):
     model_kwargs = dict(
         from_tf=False,
@@ -78,3 +81,12 @@ def create_bert(
     else:
         raise ValueError(f"{model_config.model_type} IS INVALID MODEL_TYPE")
     return model
+
+def create_roberta():
+    return None
+
+def create_deberta():
+    return None
+
+def create_distilbert():
+    return None
