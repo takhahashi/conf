@@ -77,7 +77,7 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
         training_args,
         datasets["train"],
         datasets["validation"],
-        #metric_fn,
+        metric_fn=None,
         data_collator = data_collator,
         callbacks=None,
     )
