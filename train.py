@@ -4,7 +4,6 @@ import logging
 from transformers import TrainingArguments
 import torch
 import numpy as np
-from datasets import load_metric
 from utils.utils_data import (
     load_data,
     data_collator,
@@ -69,10 +68,8 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
 
     ################### Training ####################################
 
-    metric = load_metric(
-        "accuracy"
-    )
-    metric_fn = lambda p: compute_metrics(config.model.model_type, metric, num_labels, p)
+
+    #metric_fn = lambda p: compute_metrics(config.model.model_type, metric, num_labels, p)
 
     #################### Training ##########################
     trainer = get_trainer(
@@ -80,7 +77,7 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
         training_args,
         datasets["train"],
         datasets["validation"],
-        metric_fn,
+        #metric_fn,
         data_collator = data_collator,
         callbacks=None,
     )
