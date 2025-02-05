@@ -9,7 +9,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def create_model(num_labels, model_args, data_args, ue_args, config):
+def create_model(num_labels, model_args, data_args, config):
 
     model_base_name = model_args.model_name_or_path
     model_config = AutoConfig.from_pretrained(
@@ -34,7 +34,6 @@ def create_model(num_labels, model_args, data_args, ue_args, config):
                 models_constructors[key](
                     model_config,
                     tokenizer,
-                    ue_args,
                     model_base_name,
                     config,
                 ),

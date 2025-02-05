@@ -49,7 +49,6 @@ def load_riken(config, model_type):
     high = upper_score_dic[config.question_id_suff][config.score_id]
     low = 0
     #/${sas.prompt_id}/${sas.question_id}_data/${sas.prompt_id}_${sas.question_id}_fold${training.fold}/train_data.json
-    print(config)
     train_datapath = config.data_path + '/train_data.json'
     with open(train_datapath) as f:
         train_dataf = json.load(f)
@@ -82,7 +81,6 @@ def load_riken(config, model_type):
     return datasets
 
 def get_model_friendly_scores(model_type, score_array, high, low):
-    print(model_type)
     if model_type == "regression":
         score_array = (np.array(score_array) - low) / (high - low)
     else:
