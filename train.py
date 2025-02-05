@@ -111,12 +111,11 @@ def main(config):
     print("==============")
     print(config.training)
     print("==============")
-    """
+
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs, config.training)
     else:
-    """
-    args_train = update_config(TrainingArguments, config.training)
+        args_train = update_config(TrainingArguments, config.training)
     
     args_data = config.data
 

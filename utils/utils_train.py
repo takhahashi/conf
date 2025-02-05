@@ -12,11 +12,17 @@ from typing import Optional
 
 from utils.model import HybridOutput
 
+
+@dataclass
+class AcceleratorConfig:
+    gradient_accumulation_kwargs: Optional[float] = None
+
 @dataclass
 class HybridTrainingArgs(TrainingArguments):
     lamb: Optional[float] = None
     margin: Optional[float] = None
     lamb_intra: Optional[float] = None
+    accelerator_config: AcceleratorConfig
 
 def get_trainer(
     model,
@@ -27,7 +33,7 @@ def get_trainer(
     data_collator=None,
     callbacks=None,
 ) -> "Trainer":
-    """
+
     if model.__class__.__name__ == "HybridBert":
         trainer = HybridTrainer(
             model=model,
@@ -39,16 +45,15 @@ def get_trainer(
             callbacks=callbacks,
         )
     else:
-    """
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        compute_metrics=metric_fn,
-        data_collator=data_collator,
-        callbacks=callbacks,
-    )
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            compute_metrics=metric_fn,
+            data_collator=data_collator,
+            callbacks=callbacks,
+        )
     return trainer
 
 
