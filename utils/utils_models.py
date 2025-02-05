@@ -20,7 +20,6 @@ def create_model(num_labels, model_args, data_args, config):
     )
     tokenizer = AutoTokenizer.from_pretrained(
         model_base_name,
-        cache_dir=config.cache_dir,
     )
     models_constructors = {
         "roberta": create_roberta,
@@ -55,7 +54,6 @@ def create_bert(
     model_kwargs = dict(
         from_tf=False,
         config=model_config,
-        cache_dir=config.cache_dir,
     )
     if model_config.model_type == 'hybrid':
             model = build_model(
