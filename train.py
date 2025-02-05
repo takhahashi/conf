@@ -118,6 +118,9 @@ def main(config):
         args_train = update_config(TrainingArguments, config.training)
     
     args_data = config.data
+    print("==============")
+    print(args_train)
+    print("==============")
 
     train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
 
