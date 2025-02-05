@@ -13,7 +13,7 @@ from typing import Optional
 from utils.model import HybridOutput
 
 @dataclass
-class CustomTrainingArgs(TrainingArguments):
+class HybridTrainingArgs(TrainingArguments):
     lamb: Optional[float] = None
     margin: Optional[float] = None
     lamb_intra: Optional[float] = None

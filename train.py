@@ -12,7 +12,7 @@ from transformers import (
     EvalPrediction,
 )
 from utils.utils_train import (
-    CustomTrainingArgs,
+    HybridTrainingArgs,
     get_trainer,
     HybridModelCallback,
 )
@@ -91,8 +91,6 @@ def train_eval_glue_model(config, training_args, data_args, work_dir=None):
     )
 
 
-
-
 def update_config(cfg_old, cfg_new):
     for k, v in cfg_new.items():
         if k in cfg_old.__dict__:
@@ -110,9 +108,9 @@ def main(config):
     auto_generated_dir = os.getcwd()
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
-
+    print(config.training)
     if config.model.model_type == 'hybrid':
-        args_train = update_config(CustomTrainingArgs, config.training)
+        args_train = update_config(HybridTrainingArgs, config.training)
     else:
         args_train = config.training
     
