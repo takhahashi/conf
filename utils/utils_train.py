@@ -15,6 +15,9 @@ from utils.model import HybridOutput
 class AcceleratorConfig:
     def __init__(self):
         self.gradient_accumulation_kwargs = None
+    def to_dict(self):
+        return {'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
+
 
 @dataclass
 class HybridTrainingArgs(TrainingArguments):
