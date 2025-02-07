@@ -36,7 +36,7 @@ def compute_metrics(is_regression, metric, label_num, p: EvalPrediction):
     return result
 
 
-def train_eval_glue_model(config, training_args, data_args, work_dir=None):
+def train_model(config, training_args, data_args, work_dir=None):
     torch.manual_seed(config.model.id)
     log.info(f"config:{config}")
 
@@ -110,18 +110,14 @@ def main(config):
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
 
-    if config.model.model_type == 'hybrid':
-        args_train = update_config(HybridTrainingArgs, config.training)
-    else:
-        args_train = update_config(TrainingArguments, config.training)
+    #if config.model.model_type == 'hybrid':
+    args_train = update_config(HybridTrainingArgs, config.training)
+    #else:
+        #args_train = update_config(TrainingArguments, config.training)
     
     args_data = config.data
 
-    setattr(args_train, 'accelerator_config', AcceleratorConfig())
-    print("==============")
-    print(args_train)
-    print("==============")
-    train_eval_glue_model(config, args_train, args_data, auto_generated_dir)
+    train_model(config, args_train, args_data, auto_generated_dir)
 
 
 
