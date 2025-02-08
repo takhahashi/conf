@@ -97,7 +97,7 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
         curr_p = probabilities[indices_i]
 
         if len(curr_repr) > 0:
-            curr_p = torch.tensor([1., 1.])
+            curr_p = torch.tensor([2., 1.])
             curr_repr = torch.tensor([[1.,1.],[2.,2.]])
             cls_repr[i] = curr_repr
             cls_p[i] = curr_p
@@ -117,9 +117,8 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
             print("==========triangle_matrix==========")
             print(triangle_matrix)
             print("==========before_sum==========")
-            dim=2
-            
-            print(1 / dim * (triangle_matrix**2))
+
+            print((triangle_matrix**2))
             exit()
 
     batch_labels = list(cls_repr.keys())
