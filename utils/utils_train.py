@@ -97,7 +97,7 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
         curr_p = probabilities[indices_i]
 
         if len(curr_repr) > 0:
-            print(curr_repr.shape())
+            print(curr_repr.shape)
             curr_p = torch.tensor([2., 1., 1.])
             curr_repr = torch.tensor([[1.,1.],[2.,2.],[3.,3.]])
             cls_repr[i] = curr_repr
