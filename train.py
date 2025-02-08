@@ -111,8 +111,8 @@ def main(config):
     print(auto_generated_dir)
 
     wandb.init(
-        project = project_name,
-        name=run_name,
+        project="test_project",
+        name="test",
     )
 
     if config.model.model_type == 'hybrid':
