@@ -18,6 +18,7 @@ from utils.utils_train import (
 )
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
+import wandb
 
 log = logging.getLogger(__name__)
 
@@ -108,6 +109,11 @@ def main(config):
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
     print(auto_generated_dir)
+
+    wandb.init(
+        project = project_name,
+        name=run_name,
+    )
 
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs(output_dir=auto_generated_dir, report_to='wandb'), config.training)
