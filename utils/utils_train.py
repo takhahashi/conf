@@ -158,6 +158,9 @@ class HybridTrainer(Trainer):
         
         del outputs
         torch.cuda.empty_cache()
+        print("===========")
+        print(hiddens[torch.nonzero(labels != -100, as_tuple=True)])
+        print("===========")
         
         loss = compute_loss_metric(
             hiddens,
