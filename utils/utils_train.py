@@ -56,9 +56,6 @@ def compute_loss_metric(
     hiddens, labels, loss, num_labels, margin, lamb_intra, lamb, unpad=False, probabilities=None,
 ):
     """Computes regularization term for loss with Metric loss"""
-    if unpad:
-        hiddens = hiddens[torch.nonzero(labels != -100, as_tuple=True)]
-        labels = labels[torch.nonzero(labels != -100, as_tuple=True)]
     class_num = num_labels
     start_idx = 0 if class_num == 2 else 1
     # TODO: define represent, target and margin
@@ -158,9 +155,6 @@ class HybridTrainer(Trainer):
         
         del outputs
         torch.cuda.empty_cache()
-        print("===========")
-        print(labels)
-        print("===========")
         
         loss = compute_loss_metric(
             hiddens,
@@ -170,7 +164,6 @@ class HybridTrainer(Trainer):
             self.margin,
             self.lamb_intra,
             self.lamb,
-            unpad=self.unpad,
             probabilities=probabilities,
         )
 
