@@ -103,11 +103,11 @@ def update_config(cfg_old, cfg_new):
     config_name='training',
 )
 def main(config):
-    print(config)
     #os.environ["WANDB_WATCH"] = "False"  # To disable Huggingface logging
     auto_generated_dir = os.getcwd()
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
+    print(auto_generated_dir)
 
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs(output_dir=auto_generated_dir, report_to='none'), config.training)
