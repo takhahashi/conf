@@ -110,9 +110,9 @@ def main(config):
     print(auto_generated_dir)
 
     if config.model.model_type == 'hybrid':
-        args_train = update_config(HybridTrainingArgs(output_dir=auto_generated_dir, report_to='none'), config.training)
+        args_train = update_config(HybridTrainingArgs(output_dir=auto_generated_dir, report_to='wandb'), config.training)
     else:
-        args_train = update_config(TrainingArguments(output_dir=auto_generated_dir, eport_to='none'), config.training)
+        args_train = update_config(TrainingArguments(output_dir=auto_generated_dir, eport_to='wandb'), config.training)
 
     train_model(config, args_train, config.data, auto_generated_dir)
 
