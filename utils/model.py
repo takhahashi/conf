@@ -155,11 +155,6 @@ class HybridBert(BertForSequenceClassification):
             
             ########classification loss#########
             loss_fct = CrossEntropyLoss()
-            print("==============")
-            print(logits.view(-1, self.num_labels))
-            print("==============")
-            print(labels.view(-1))
-            print("==============")
             c_loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
             loss, s_wei, diff_wei, alpha, pre_loss = self.lsb(regression=r_loss, classification=c_loss)
