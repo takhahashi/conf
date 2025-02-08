@@ -141,7 +141,7 @@ class HybridTrainer(Trainer):
         self.margin = getattr(kwargs["args"], "margin")
         self.lamb_intra = getattr(kwargs["args"], "lamb_intra")
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
         labels = inputs["labels"]
         outputs = model(**inputs, output_hidden_states=True)
 
