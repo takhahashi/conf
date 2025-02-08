@@ -106,6 +106,15 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
 
             loss_intra += torch.sum(1 / dim * (triangle_matrix**2))
             num_intra += (curr_repr.shape[0] ** 2 - curr_repr.shape[0]) / 2
+            print("==========curr_p==========")
+            print(curr_p)
+            print("==========p_matrix==========")
+            print(p_matrix)
+            print("==========euclid==========")
+            print((curr_repr.unsqueeze(1) - curr_repr).norm(2, dim=-1))
+            print("==========triangle_matrix==========")
+            print(triangle_matrix)
+            exit()
 
     batch_labels = list(cls_repr.keys())
     bs = represent.shape[0]
