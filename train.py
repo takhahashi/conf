@@ -110,9 +110,9 @@ def main(config):
     os.chdir(hydra.utils.get_original_cwd())
 
     if config.model.model_type == 'hybrid':
-        args_train = update_config(HybridTrainingArgs(), config.training)
+        args_train = update_config(HybridTrainingArgs(output_dir=auto_generated_dir), config.training)
     else:
-        args_train = update_config(TrainingArguments(), config.training)
+        args_train = update_config(TrainingArguments(output_dir=auto_generated_dir), config.training)
 
     train_model(config, args_train, config.data, auto_generated_dir)
 
