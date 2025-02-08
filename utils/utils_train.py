@@ -70,8 +70,6 @@ def compute_loss_metric(
         class_num=class_num,
         probabilities=probabilities,
     )
-    print("=====hybp======")
-    print(lamb_intra, lamb, margin)
     loss_metric = lamb_intra * loss_intra[0] + lamb * loss_inter[0]
     loss += loss_metric
     return loss
