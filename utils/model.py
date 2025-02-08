@@ -81,6 +81,7 @@ class ScaleDiffBalance:
          else:
             device = torch.device('cpu')
          print(f"Using device: {device}")
+         print(v)
          print(torch.tensor(v).cuda())
          print("=============")
          w_dic[k] = torch.tensor(v).cuda()
