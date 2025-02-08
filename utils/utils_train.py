@@ -97,9 +97,6 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
         curr_p = probabilities[indices_i]
 
         if len(curr_repr) > 0:
-            print(curr_repr.shape)
-            curr_p = torch.tensor([2., 1., 1.])
-            curr_repr = torch.tensor([[1.,1.],[2.,2.],[3.,3.]])
             cls_repr[i] = curr_repr
             cls_p[i] = curr_p
             p_matrix = curr_p.unsqueeze(1) * curr_p
@@ -109,18 +106,6 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
 
             loss_intra += torch.sum(1 / dim * (triangle_matrix**2))
             num_intra += (curr_repr.shape[0] ** 2 - curr_repr.shape[0]) / 2
-            print("==========curr_p==========")
-            print(curr_p)
-            print("==========p_matrix==========")
-            print(p_matrix)
-            print("==========euclid==========")
-            print((curr_repr.unsqueeze(1) - curr_repr).norm(2, dim=-1))
-            print("==========triangle_matrix==========")
-            print(triangle_matrix)
-            print("==========before_sum==========")
-
-            print((triangle_matrix**2))
-            exit()
 
     batch_labels = list(cls_repr.keys())
     bs = represent.shape[0]
@@ -136,6 +121,10 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
                 torch.clamp(margin * p_matrix - 1 / dim * (matrix**2), min=0)
             )
             num_inter += cls_repr[k].shape[0] * curr_repr.shape[0]
+
+            print("====margin======")
+            print(margin * p_matrix - 1 / dim * (matrix**2))
+    exit()
 
     if num_intra > 0:
         loss_intra = loss_intra / num_intra
