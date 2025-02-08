@@ -76,6 +76,11 @@ class ScaleDiffBalance:
     if len(self.all_loss_log) < 1:
       for k, v in self.task_priority.items():
          print("=============")
+         if torch.cuda.is_available():
+            device = torch.device('cuda')
+         else:
+            device = torch.device('cpu')
+         print(f"Using device: {device}")
          print(torch.tensor(v).cuda())
          print("=============")
          w_dic[k] = torch.tensor(v).cuda()
