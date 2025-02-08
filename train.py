@@ -104,7 +104,7 @@ def update_config(cfg_old, cfg_new):
 )
 def main(config):
     print(config)
-    os.environ["WANDB_WATCH"] = "False"  # To disable Huggingface logging
+    #os.environ["WANDB_WATCH"] = "False"  # To disable Huggingface logging
     auto_generated_dir = os.getcwd()
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
