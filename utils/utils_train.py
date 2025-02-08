@@ -68,7 +68,6 @@ def compute_loss_metric(
         labels,
         margin=margin,
         class_num=class_num,
-        start_idx=start_idx,
         probabilities=probabilities,
     )
     loss_metric = lamb_intra * loss_intra[0] + lamb * loss_inter[0]
