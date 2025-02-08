@@ -52,7 +52,7 @@ def train_model(config, training_args, data_args, work_dir=None):
         low = 0
     elif data_args.task_name == 'asap':
         low, high = asap_ranges[data_args.prompt_id]
-    num_labels = high - low
+    num_labels = high - low + 1
 
     ################ Loading model #######################
 
