@@ -117,6 +117,7 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
             print("==========triangle_matrix==========")
             print(triangle_matrix)
             print("==========before_sum==========")
+            print(dim)
             print(1 / dim * (triangle_matrix**2))
             exit()
 
