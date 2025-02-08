@@ -116,6 +116,8 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
             print((curr_repr.unsqueeze(1) - curr_repr).norm(2, dim=-1))
             print("==========triangle_matrix==========")
             print(triangle_matrix)
+            print("==========before_sum==========")
+            print(1 / dim * (triangle_matrix**2))
             exit()
 
     batch_labels = list(cls_repr.keys())
