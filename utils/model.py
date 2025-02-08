@@ -75,6 +75,7 @@ class ScaleDiffBalance:
     w_dic = {}
     if len(self.all_loss_log) < 1:
       for k, v in self.task_priority.items():
+         print(torch.tensor(v))
          w_dic[k] = torch.tensor(v).cuda()
     else:
       for k, each_task_loss_arr in self.loss_log.items():
