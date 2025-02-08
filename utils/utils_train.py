@@ -109,6 +109,8 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
 
     batch_labels = list(cls_repr.keys())
     bs = represent.shape[0]
+    print("=======score_prob========")
+    print(cls_p)
     for n, j in enumerate(batch_labels):
         curr_repr = cls_repr[j]
         curr_p = cls_p[j]
@@ -121,10 +123,15 @@ def multiclass_metric_loss_fast_optimized(represent, target, probabilities, clas
                 torch.clamp(margin * p_matrix - 1 / dim * (matrix**2), min=0)
             )
             num_inter += cls_repr[k].shape[0] * curr_repr.shape[0]
+            
+            print("====euq_matrix======")
+            print(matrix)
 
+            print("====p_matrix======")
+            print(p_matrix)
             print("====margin======")
             print(margin * p_matrix - 1 / dim * (matrix**2))
-    exit()
+            exit()
 
     if num_intra > 0:
         loss_intra = loss_intra / num_intra
