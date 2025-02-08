@@ -75,15 +75,6 @@ class ScaleDiffBalance:
     w_dic = {}
     if len(self.all_loss_log) < 1:
       for k, v in self.task_priority.items():
-         print("=============")
-         if torch.cuda.is_available():
-            device = torch.device('cuda')
-         else:
-            device = torch.device('cpu')
-         print(f"Using device: {device}")
-         print(v)
-         print(torch.tensor(v).cuda())
-         print("=============")
          w_dic[k] = torch.tensor(v).cuda()
     else:
       for k, each_task_loss_arr in self.loss_log.items():
@@ -165,6 +156,9 @@ class HybridBert(BertForSequenceClassification):
             ########classification loss#########
             loss_fct = CrossEntropyLoss()
             c_loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            print("==============")
+            print(r_loss, c_loss)
+            print("==============")
 
             loss, s_wei, diff_wei, alpha, pre_loss = self.lsb(regression=r_loss, classification=c_loss)
             self.scale_weights = s_wei
