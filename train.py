@@ -73,6 +73,7 @@ def train_model(config, training_args, data_args, work_dir=None):
     #metric_fn = lambda p: compute_metrics(config.model.model_type, metric, num_labels, p)
 
     #################### Training ##########################
+    
     trainer = get_trainer(
         model,
         training_args,
@@ -90,6 +91,7 @@ def train_model(config, training_args, data_args, work_dir=None):
         if os.path.isdir(model_args.model_name_or_path)
         else None
     )
+    tokenizer.save_pretrained(config.training.output_dir)
 
 
 def update_config(cfg_old, cfg_new):
