@@ -8,23 +8,18 @@ from utils.utils_data import (
     load_data,
     data_collator,
 )
-from transformers import (
-    EvalPrediction,
-)
-from utils.utils_train import (
-    HybridTrainingArgs,
-    get_trainer,
-    HybridModelCallback,
-)
 from utils.utils_eval import (
     evaluate_model,
 )
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
+from utils.ue_estimater import create_ue_estimator
+from pathlib import Path
+import json
 
 log = logging.getLogger(__name__)
 
-def eval_model(config, data_args, work_dir=None):
+def eval_model(config, data_args):
     torch.manual_seed(config.model.id)
     log.info(f"config:{config}")
 
@@ -57,8 +52,26 @@ def eval_model(config, data_args, work_dir=None):
 
     ################### Evaluate ####################################
 
-    eval_resutls = evaluate_model(config, model, datasets)
+    eval_results = evaluate_model(config, model, datasets)
 
+    if config.do_ue_estimate:
+        train_dataset = datasets["train"]
+        eval_dataset = datasets["test"]
+        true_labels = [example["label"] for example in eval_dataset]
+        
+        ue_estimator = create_ue_estimator(
+            model,
+            config.ue,
+            train_dataset=datasets["train"],
+            config=config,
+        )
+
+        ue_estimator.fit_ue(X=train_dataset, X_test=eval_dataset)
+
+        ue_results = ue_estimator(eval_dataset, true_labels)
+        eval_results.update(ue_results)
+    with open(Path(config.result_savepath) / "test_inference.json", "w") as res:
+        json.dump(eval_results, res)
 
 def update_config(cfg_old, cfg_new):
     for k, v in cfg_new.items():
@@ -69,7 +82,7 @@ def update_config(cfg_old, cfg_new):
 
 @hydra.main(
     config_path='configs',
-    config_name='training',
+    config_name='eval',
 )
 def main(config):
     #os.environ["WANDB_WATCH"] = "False"  # To disable Huggingface logging
@@ -77,7 +90,7 @@ def main(config):
     log.info(f"Work dir: {auto_generated_dir}")
     os.chdir(hydra.utils.get_original_cwd())
 
-    eval_model(config, config.data, auto_generated_dir)
+    eval_model(config, config.data)
 
 
 
