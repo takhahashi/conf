@@ -91,6 +91,7 @@ def train_model(config, training_args, data_args, work_dir=None):
         if os.path.isdir(model_args.model_name_or_path)
         else None
     )
+    trainer.save_model(config.training.output_dir)
     tokenizer.save_pretrained(config.training.output_dir)
 
 
