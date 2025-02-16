@@ -22,7 +22,7 @@ class CustomDataset(Dataset):
 def evaluate_model(config, model, datasets):
     test_dataset = CustomDataset(datasets['test'])
     test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=False, collate_fn=data_collator)
-    
+    model = model.cuda()
     model.eval()
     hidden_states = []
     reg_output = []
