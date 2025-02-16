@@ -70,7 +70,10 @@ def eval_model(config, data_args):
 
         ue_results = ue_estimator(eval_dataset, true_labels)
         eval_results.update(ue_results)
-    with open(Path(config.result_savepath) / "test_inference.json", "w") as res:
+        
+    resut_savepath = Path(config.result_savepath) / "test_inference.json"
+    resut_savepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(resut_savepath, "w") as res:
         json.dump(eval_results, res)
 
 def update_config(cfg_old, cfg_new):
