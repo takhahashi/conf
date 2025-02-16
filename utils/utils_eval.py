@@ -3,7 +3,7 @@ import numpy as np
 from utils.utils_data import data_collator
 
 def evaluate_model(config, model, datasets):
-    test_dataloader = DataLoader(datasets['test'], batch_size=8, shuffle=False)
+    test_dataloader = DataLoader(datasets['test'], batch_size=8, shuffle=False, collate_fn=data_collator)
     
     model.eval()
     hidden_states = []
