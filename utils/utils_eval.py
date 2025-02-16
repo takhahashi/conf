@@ -28,7 +28,7 @@ def evaluate_model(config, model, datasets):
     reg_output = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
-        inputs = {k:v.cuda() for k, v in inputs.itemize}
+        inputs = {k: v.cuda() for k, v in inputs.items()}
         outputs = model(**inputs, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
