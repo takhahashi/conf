@@ -45,7 +45,7 @@ def eval_model(config, data_args):
     ################ Preprocessing the dataset ###########
 
     def tokenize_function(examples):
-        return tokenizer(examples['text'], padding="max_length", truncation=True, max_length=512, return_tensors="pt")  # 512は適宜変更
+        return tokenizer(examples['text'], padding="max_length", truncation=True, max_length=512)  # 512は適宜変更
 
     # datasets に対してトークナイザーを適用
     datasets = datasets.map(tokenize_function, batched=True)
