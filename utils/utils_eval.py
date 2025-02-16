@@ -34,8 +34,8 @@ def evaluate_model(config, model, datasets):
         if config.model.model_type == "hybrid":
             reg_output.append(outputs.reg_output.to('cpu').detach().numpy().copy())
             logits.append(outputs.logits.to('cpu').detach().numpy().copy())
-    reg_output = list(np.concatenate(reg_output))
-    logits = list(np.concatenate(logits))
-    hidden_states = list(np.concatenate(hidden_states))
+    reg_output = np.concatenate(reg_output).tolist()
+    logits = np.concatenate(logits).tolist()
+    hidden_states = np.concatenate(hidden_states).tolist()
 
     return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
