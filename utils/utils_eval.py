@@ -9,9 +9,11 @@ def evaluate_model(config, model, datasets):
     reg_output = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
-        print(inputs.keys())
-        
-        outputs = model(**inputs, output_hidden_states=True)
+        bert_input = {'label':inputs['label'], 
+                      'input_ids':inputs['input_ids'], 
+                      'token_type_ids':inputs['token_type_ids'], 
+                      'attention_mask':inputs['attention_mask']}
+        outputs = model(**bert_input, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
             reg_output.append(outputs.reg_output.to('cpu').detach().numpy().copy())
