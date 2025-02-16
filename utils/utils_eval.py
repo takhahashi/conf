@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 def evaluate_model(config, model, datasets):
-    test_dataloader = DataLoader(datasets['test'], batch_size=config.eval.batch_size, shuffle=False)
+    test_dataloader = DataLoader(datasets['test'], batch_size=8, shuffle=False)
     
     model.eval()
     hidden_states = []
