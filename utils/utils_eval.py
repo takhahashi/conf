@@ -12,6 +12,9 @@ def evaluate_model(config, model, datasets):
         bert_input = {'input_ids':inputs['input_ids'], 
                       'token_type_ids':inputs['token_type_ids'], 
                       'attention_mask':inputs['attention_mask']}
+        print(inputs['input_ids'])
+        print(inputs['token_type_ids'])
+        print(inputs['attention_mask'])
         outputs = model(**bert_input, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
