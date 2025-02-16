@@ -1,5 +1,6 @@
 from torch.utils.data import DataLoader
 import numpy as np
+from utils.utils_data import data_collator
 
 def evaluate_model(config, model, datasets):
     test_dataloader = DataLoader(datasets['test'], batch_size=8, shuffle=False)
@@ -9,6 +10,10 @@ def evaluate_model(config, model, datasets):
     reg_output = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
+        print(inputs['input_ids'])
+        print(inputs['token_type_ids'])
+        print(inputs['attention_mask'])
+        inputs = data_collator(inputs)
         bert_input = {'input_ids':inputs['input_ids'], 
                       'token_type_ids':inputs['token_type_ids'], 
                       'attention_mask':inputs['attention_mask']}
