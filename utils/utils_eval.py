@@ -28,6 +28,9 @@ def evaluate_model(config, model, datasets):
     reg_output = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
+        for key, value in inputs.items():
+            print(f"  {key} is on device: {value.device}")
+        exit()
         outputs = model(**inputs, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
