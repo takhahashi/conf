@@ -2,27 +2,34 @@ from torch.utils.data import DataLoader
 import numpy as np
 from utils.utils_data import data_collator
 
+class CustomDataset(Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        item = self.dataset[idx]
+        return {
+            'input_ids': item['input_ids'],
+            'token_type_ids': item['token_type_ids'],
+            'attention_mask': item['attention_mask'],
+            'label': item['label']
+        }
+
+
 def evaluate_model(config, model, datasets):
-    print(datasets)
-    print(type(datasets))
-    test_dataloader = DataLoader(datasets['test'], batch_size=8, shuffle=False, collate_fn=data_collator)
+    test_dataset = CustomDataset(datasets['test'])
+    test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=False, collate_fn=data_collator)
     
     model.eval()
     hidden_states = []
     reg_output = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
-        print(inputs['input_ids'])
-        print(inputs['token_type_ids'])
-        print(inputs['attention_mask'])
-        inputs = data_collator(inputs)
-        bert_input = {'input_ids':inputs['input_ids'], 
-                      'token_type_ids':inputs['token_type_ids'], 
-                      'attention_mask':inputs['attention_mask']}
-        print(inputs['input_ids'])
-        print(inputs['token_type_ids'])
-        print(inputs['attention_mask'])
-        outputs = model(**bert_input, output_hidden_states=True)
+        print(inputs)
+        outputs = model(**inputs, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
             reg_output.append(outputs.reg_output.to('cpu').detach().numpy().copy())
