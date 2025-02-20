@@ -38,11 +38,18 @@ def evaluate_model(config, model, datasets):
         if config.model.model_type == "hybrid":
             reg_output.append(outputs.reg_output.to('cpu').detach().numpy().copy())
             logits.append(outputs.logits.to('cpu').detach().numpy().copy())
-    reg_output = np.concatenate(reg_output).tolist()
-    logits = np.concatenate(logits).tolist()
-    hidden_states = np.concatenate(hidden_states).tolist()
+        elif config.model.model_type == "classification":
+            logits.append(outputs.logits.to('cpu').detach().numpy().copy())
 
-    return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
+    if config.model.model_type == "hybrid":
+        reg_output = np.concatenate(reg_output).tolist()
+        logits = np.concatenate(logits).tolist()
+        hidden_states = np.concatenate(hidden_states).tolist()
+        return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
+    elif config.model.model_type == "classification":
+        logits = np.concatenate(logits).tolist()
+        hidden_states = np.concatenate(hidden_states).tolist()
+        return {"logits":logits, "hidden_states":hidden_states}
 
 def calc_rpp(conf, squared_error):
   n = len(conf)
@@ -65,9 +72,17 @@ def calc_predscore_conf(config, eval_results):
 
     if config.model.model_type == 'hybrid':
         probs = softmax(eval_results['logits'], axis=1)
-        pred_scores = np.round(np.array(eval_results['reg_output']).reshape(-1) * (high - low) + low)
-        conf = [ps[int(i)] for ps, i in zip(probs, pred_scores)]
-        return pred_scores, np.array(conf)
+        int_preds = np.round(np.array(eval_results['reg_output']).reshape(-1) * (high - low))
+        conf = [ps[int(i)] for ps, i in zip(probs, int_preds)]
+        return int_preds, np.array(conf)
+    elif config.model.model_type == 'classification':
+        probs = softmax(eval_results['logits'], axis=1)
+        print(probs[:3])
+        int_preds = np.argmax(probs, axis=1)
+        print(int_preds[:3])
+        conf = [ps[int(i)] for ps, i in zip(probs, int_preds)]
+        return int_preds, np.array(conf) 
+
 
 def eval_metric(config, eval_results, metric):
     if config.data.task_name == 'riken':
@@ -76,15 +91,15 @@ def eval_metric(config, eval_results, metric):
     elif config.data.task_name == 'asap':
         low, high = asap_ranges[config.data.prompt_id]
 
-    pred_scores, conf = calc_predscore_conf(config, eval_results)
+    int_preds, conf = calc_predscore_conf(config, eval_results)
 
     if metric == 'qwk':
-        return cohen_kappa_score(np.array(eval_results['true_labels']) + low, pred_scores+low, labels = list(range(low, high + 1)), weights='quadratic')
+        return cohen_kappa_score(np.array(eval_results['true_labels']) + low, int_preds+low, labels = list(range(low, high + 1)), weights='quadratic')
     elif metric == 'corr':
-        return np.corrcoef(np.array(eval_results['true_labels']) + low, pred_scores+low)[0][1]
+        return np.corrcoef(np.array(eval_results['true_labels']) + low, int_preds+low)[0][1]
     elif metric == 'roc':
-        errors = (np.array(eval_results['true_labels']) != pred_scores).astype('int32')
+        errors = (np.array(eval_results['true_labels']) != int_preds).astype('int32')
         return roc_auc_score(errors, -conf)
     elif metric == 'rpp':
-        squared_error = ((np.array(eval_results['true_labels']) + low) - (pred_scores+low)) ** 2
+        squared_error = ((np.array(eval_results['true_labels']) + low) - (int_preds+low)) ** 2
         return calc_rpp(conf=conf, squared_error=squared_error)
