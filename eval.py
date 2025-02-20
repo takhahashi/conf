@@ -63,7 +63,6 @@ def eval_model(config, data_args):
         ue_estimator = UeEstimatorTrustscore(model, config, datasets["train"])
 
         ue_estimator.fit_ue(X=datasets["train"], X_test=datasets["test"])
-
         ue_results = ue_estimator(datasets["test"], test_labels)
         eval_results.update(ue_results)
 
