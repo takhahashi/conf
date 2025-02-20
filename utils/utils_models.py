@@ -61,7 +61,7 @@ def create_bert(
                 HybridBert, model_config._name_or_path, **model_kwargs
             )
             log.info("loaded HybridBERT constraction")
-    elif model_config.model_type == 'regression':
+    elif model_config.model_type == 'gaussianregression':
         model = build_model(
             BertForSequenceRegression, model_path_or_name, **model_kwargs
         )

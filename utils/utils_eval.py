@@ -77,9 +77,7 @@ def calc_predscore_conf(config, eval_results):
         return int_preds, np.array(conf)
     elif config.model.model_type == 'classification':
         probs = softmax(eval_results['logits'], axis=1)
-        print(probs[:3])
         int_preds = np.argmax(probs, axis=1)
-        print(int_preds[:3])
         conf = [ps[int(i)] for ps, i in zip(probs, int_preds)]
         return int_preds, np.array(conf) 
 
