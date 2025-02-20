@@ -92,7 +92,7 @@ def calc_predscore_conf(config, eval_results):
     
     elif config.model.model_type == 'gaussianregression':
         int_preds = np.round(np.array(eval_results['pred_score']).reshape(-1) * (high - low))
-        conf = -eval_results['pred_lnvar']
+        conf = -np.array(eval_results['pred_lnvar'])
         return int_preds, np.array(conf)
 
 
