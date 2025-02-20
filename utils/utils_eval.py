@@ -56,7 +56,7 @@ def calc_rpp(conf, squared_error):
         cnt += 1
   return cnt / (n**2)
 
-def eval_score_conf(config, eval_results):
+def calc_predscore_conf(config, eval_results):
     if config.data.task_name == 'riken':
         high = upper_score_dic[config.data.question_id_suff][config.data.score_id]
         low = 0
@@ -76,7 +76,7 @@ def eval_metric(config, eval_results, metric):
     elif config.data.task_name == 'asap':
         low, high = asap_ranges[config.data.prompt_id]
 
-    pred_scores, conf = eval_score_conf(config, eval_results)
+    pred_scores, conf = calc_predscore_conf(config, eval_results)
 
     if metric == 'qwk':
         return cohen_kappa_score(np.array(eval_results['true_labels']) + low, pred_scores+low, labels = list(range(low, high + 1)), weights='quadratic')
