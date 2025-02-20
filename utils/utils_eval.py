@@ -29,20 +29,24 @@ def evaluate_model(config, model, datasets):
     model = model.cuda()
     model.eval()
     hidden_states = []
-    reg_output = []
+    reg_score = []
+    reg_lnvar = []
     logits = []
     for step, inputs in enumerate(test_dataloader):
         inputs = {k: v.cuda() for k, v in inputs.items()}
         outputs = model(**inputs, output_hidden_states=True)
         hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
         if config.model.model_type == "hybrid":
-            reg_output.append(outputs.reg_output.to('cpu').detach().numpy().copy())
+            reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
             logits.append(outputs.logits.to('cpu').detach().numpy().copy())
         elif config.model.model_type == "classification":
             logits.append(outputs.logits.to('cpu').detach().numpy().copy())
+        elif config.model.model_type == "gaussianregression":
+            reg_score.append(outputs.pred_score.to('cpu').detach().numpy().copy())
+            reg_lnvar.append(outputs.pred_lnvar.to('cpu').detach().numpy().copy())
 
     if config.model.model_type == "hybrid":
-        reg_output = np.concatenate(reg_output).tolist()
+        reg_output = np.concatenate(reg_score).tolist()
         logits = np.concatenate(logits).tolist()
         hidden_states = np.concatenate(hidden_states).tolist()
         return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
@@ -50,6 +54,11 @@ def evaluate_model(config, model, datasets):
         logits = np.concatenate(logits).tolist()
         hidden_states = np.concatenate(hidden_states).tolist()
         return {"logits":logits, "hidden_states":hidden_states}
+    elif config.model.model_type == "gaussianregression":
+        pred_score = np.concatenate(reg_score).tolist()
+        pred_lnvar = np.concatenate(reg_lnvar).tolist()
+        hidden_states = np.concatenate(hidden_states).tolist()
+        return {"pred_score":pred_score, "pred_lnvar":pred_lnvar, "hidden_states":hidden_states}
 
 def calc_rpp(conf, squared_error):
   n = len(conf)
@@ -80,6 +89,11 @@ def calc_predscore_conf(config, eval_results):
         int_preds = np.argmax(probs, axis=1)
         conf = [ps[int(i)] for ps, i in zip(probs, int_preds)]
         return int_preds, np.array(conf) 
+    
+    elif config.model.model_type == 'gaussianregression':
+        int_preds = np.round(np.array(eval_results['pred_score']).reshape(-1) * (high - low))
+        conf = -eval_results['pred_lnvar']
+        return int_preds, np.array(conf)
 
 
 def eval_metric(config, eval_results, metric):
