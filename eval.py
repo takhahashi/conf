@@ -58,15 +58,13 @@ def eval_model(config, data_args):
     eval_results["true_labels"] = [example["label"] for example in datasets['test']]
 
     if config.use_trustscore:
-        train_dataset = datasets["train"]
-        eval_dataset = datasets["test"]
-        true_labels = [example["label"] for example in eval_dataset]
+        test_labels = [example["label"] for example in datasets["test"]]
         
-        ue_estimator = UeEstimatorTrustscore(model, config, train_dataset)
+        ue_estimator = UeEstimatorTrustscore(model, config, datasets["train"])
 
-        ue_estimator.fit_ue(X=train_dataset, X_test=eval_dataset)
+        ue_estimator.fit_ue(X=datasets["train"], X_test=datasets["test"])
 
-        ue_results = ue_estimator(eval_dataset, true_labels)
+        ue_results = ue_estimator(datasets["test"], test_labels)
         eval_results.update(ue_results)
 
     eval_results["qwk"] = eval_metric(config, eval_results, 'qwk')

@@ -1,9 +1,10 @@
+import torch
 import numpy as np
 from collections import defaultdict
 from torch.utils.data import DataLoader, Dataset
-
 from utils.utils_data import data_collator
 import logging
+
 log = logging.getLogger()
 
 class CustomDataset(Dataset):
@@ -21,7 +22,7 @@ class CustomDataset(Dataset):
             'attention_mask': item['attention_mask'],
             'label': item['label']
         }
-
+    
 class UeEstimatorTrustscore:
     def __init__(self, cls, config, train_dataset):
         self.cls = cls
@@ -29,7 +30,6 @@ class UeEstimatorTrustscore:
         self.train_dataloader = DataLoader(CustomDataset(train_dataset), batch_size=8, shuffle=False, collate_fn=data_collator)
     
     def __call__(self, X, y):
-
         test_hidden_states, test_answers = self._exctract_features_preds(X)
         eval_results = {"trust_score":[]}
         for hidden_state, answer in zip(test_hidden_states, test_answers):
@@ -49,8 +49,9 @@ class UeEstimatorTrustscore:
                 eval_results["trust_score"].append(float(trust_score))
         return eval_results
 
-    def fit_ue(self):
+    def fit_ue(self, X=None, y=None, X_test=None):
         model = self.cls
+        model = model.cuda()
         model.eval()
 
         log.info(
@@ -71,16 +72,16 @@ class UeEstimatorTrustscore:
         self.train_hidden_states = labels_hidden_states
         log.info("**************Done.**********************")
 
-    def _exctract_features_preds(self):
+    def _exctract_features_preds(self, X):
         model = self.cls
-
+        model = model.cuda()
+        test_dataloader = DataLoader(CustomDataset(X), batch_size=8, shuffle=False, collate_fn=data_collator)
+    
         hidden_states = []
         answers = []
-        for step, inputs in enumerate(self.test_dataloader):
+        for step, inputs in enumerate(test_dataloader):
             inputs = {k: v.cuda() for k, v in inputs.items()}
             outputs = model(**inputs, output_hidden_states=True)
-            
-
             hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
             answers.append(np.argmax(outputs.logits.to('cpu').detach().numpy().copy(), axis=-1))
             
