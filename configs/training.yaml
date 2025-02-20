@@ -12,9 +12,9 @@ training:
     save_strategy: epoch
     save_total_limit: 1
     save_safetensors: True
-    lamb: ???
-    margin: ??? 
-    lamb_intra: ???
+    lamb: None
+    margin: None 
+    lamb_intra: None
     output_dir: ???
     wandb_project: ???
     wandb_runname: ???
