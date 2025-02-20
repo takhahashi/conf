@@ -2,6 +2,7 @@ import numpy as np
 from collections import defaultdict
 from torch.utils.data import DataLoader, Dataset
 
+from utils.utils_data import data_collator
 import logging
 log = logging.getLogger()
 
