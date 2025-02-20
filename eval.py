@@ -54,7 +54,6 @@ def eval_model(config, data_args):
     ################### Evaluate ####################################
 
     eval_results = evaluate_model(config, model, datasets)
-    print([example["label"] for example in datasets['test']])
     eval_results["true_labels"] = [example["label"] for example in datasets['test']]
 
     if config.use_trustscore:

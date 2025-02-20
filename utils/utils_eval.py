@@ -104,6 +104,8 @@ def eval_metric(config, eval_results, metric):
         low, high = asap_ranges[config.data.prompt_id]
 
     int_preds, conf = calc_predscore_conf(config, eval_results)
+    if config.use_trustscore == True:
+        conf = np.array(eval_results["trust_score"])
 
     if metric == 'qwk':
         return cohen_kappa_score(np.array(eval_results['true_labels']) + low, int_preds+low, labels = list(range(low, high + 1)), weights='quadratic')
