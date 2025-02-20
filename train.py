@@ -96,7 +96,7 @@ def train_model(config, training_args, data_args, work_dir=None):
 
 
 def update_config(cfg_old, cfg_new):
-    print(cfg_new)
+    print(cfg_new['lamb'].type())
     for k, v in cfg_new.items():
         print(k)
         if k in cfg_old.__dict__:
@@ -119,6 +119,7 @@ def main(config):
         project=config.training.wandb_project,
         name=config.training.wandb_runname,
     )
+    
 
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs(output_dir=config.training.output_dir, report_to='wandb'), config.training)
