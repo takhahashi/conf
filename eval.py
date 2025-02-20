@@ -10,6 +10,7 @@ from utils.utils_data import (
 )
 from utils.utils_eval import (
     evaluate_model,
+    eval_metric
 )
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
@@ -55,7 +56,7 @@ def eval_model(config, data_args):
     eval_results = evaluate_model(config, model, datasets)
     eval_results["true_labels"] = [example["label"] for example in datasets['test']]
 
-    if config.do_ue_estimate:
+    if config.use_trustscore:
         train_dataset = datasets["train"]
         eval_dataset = datasets["test"]
         true_labels = [example["label"] for example in eval_dataset]
@@ -71,6 +72,11 @@ def eval_model(config, data_args):
 
         ue_results = ue_estimator(eval_dataset, true_labels)
         eval_results.update(ue_results)
+
+    eval_results["qwk"] = eval_metric(config, eval_results, 'qwk')
+    eval_results["corr"] = eval_metric(config, eval_results, 'corr')
+    eval_results["roc"] = eval_metric(config, eval_results, 'roc')
+    eval_results["rpp"] = eval_metric(config, eval_results, 'rpp')
 
     resut_savepath = Path(config.result_savepath) / "test_inference.json"
     resut_savepath.parent.mkdir(parents=True, exist_ok=True)
