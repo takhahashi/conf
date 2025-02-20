@@ -96,10 +96,8 @@ def train_model(config, training_args, data_args, work_dir=None):
 
 
 def update_config(cfg_old, cfg_new):
-    print(cfg_new['lamb'].type())
     for k, v in cfg_new.items():
         if k in cfg_old.__dict__:
-            print(k)
             setattr(cfg_old, k, v)
 
     return cfg_old
