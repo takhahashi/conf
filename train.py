@@ -45,7 +45,7 @@ def train_model(config, training_args, data_args, work_dir=None):
     ############### Loading dataset ######################
 
     log.info("Load dataset.")
-    datasets = load_data(data_args, config.model.model_type)
+    datasets = load_data(data_args)
     log.info("Done with loading the dataset.")
 
     if data_args.task_name == 'riken':
