@@ -120,7 +120,7 @@ def main(config):
     if config.model.model_type == 'hybrid':
         args_train = update_config(HybridTrainingArgs(output_dir=config.training.output_dir, report_to='wandb'), config.training)
     else:
-        args_train = update_config(TrainingArguments(output_dir=config.training.output_dir, eport_to='wandb'), config.training)
+        args_train = update_config(TrainingArguments(output_dir=config.training.output_dir, report_to='wandb'), config.training)
 
     train_model(config, args_train, config.data, auto_generated_dir)
 
