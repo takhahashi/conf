@@ -81,10 +81,7 @@ def load_riken(config, model_type):
     return datasets
 
 def get_model_friendly_scores(model_type, score_array, high, low):
-    if model_type == "regression":
-        score_array = (np.array(score_array) - low) / (high - low)
-    else:
-        score_array = score_array - low
+    score_array = score_array - low
     return score_array     
 
 def data_collator(list_of_data):
