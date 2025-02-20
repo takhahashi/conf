@@ -97,6 +97,7 @@ def train_model(config, training_args, data_args, work_dir=None):
 
 def update_config(cfg_old, cfg_new):
     for k, v in cfg_new.items():
+        print(k)
         if k in cfg_old.__dict__:
             print(k)
             setattr(cfg_old, k, v)
