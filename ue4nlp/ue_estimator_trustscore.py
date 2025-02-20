@@ -1,20 +1,33 @@
 import numpy as np
 from collections import defaultdict
+from torch.utils.data import DataLoader, Dataset
 
 import logging
 log = logging.getLogger()
 
+class CustomDataset(Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        item = self.dataset[idx]
+        return {
+            'input_ids': item['input_ids'],
+            'token_type_ids': item['token_type_ids'],
+            'attention_mask': item['attention_mask'],
+            'label': item['label']
+        }
 
 class UeEstimatorTrustscore:
     def __init__(self, cls, config, train_dataset):
         self.cls = cls
         self.config = config
-        self.train_dataset = train_dataset
-
+        self.train_dataloader = DataLoader(CustomDataset(train_dataset), batch_size=8, shuffle=False, collate_fn=data_collator)
+    
     def __call__(self, X, y):
-        cls = self.cls
-        model = self.cls._auto_model
-        trainer = self.cls._trainer
 
         test_hidden_states, test_answers = self._exctract_features_preds(X)
         eval_results = {"trust_score":[]}
@@ -35,19 +48,17 @@ class UeEstimatorTrustscore:
                 eval_results["trust_score"].append(float(trust_score))
         return eval_results
 
-    def fit_ue(self, X=None, y=None, X_test=None):
-        cls = self.cls
-        model = self.cls._auto_model
-        trainer = self.cls._trainer
+    def fit_ue(self):
+        model = self.cls
         model.eval()
 
         log.info(
             "****************Start calcurating hiddenstate on train dataset **************"
         )
-        train_dataloader = trainer.get_train_dataloader()
         hidden_states = []
         labels = []
-        for step, inputs in enumerate(train_dataloader):
+        for step, inputs in enumerate(self.train_dataloader):
+            inputs = {k: v.cuda() for k, v in inputs.items()}
             outputs = model(**inputs, output_hidden_states=True)
             hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
             labels.append(inputs["labels"].to('cpu').detach().numpy().copy())
@@ -59,15 +70,13 @@ class UeEstimatorTrustscore:
         self.train_hidden_states = labels_hidden_states
         log.info("**************Done.**********************")
 
-    def _exctract_features_preds(self, X):
-        cls = self.cls
-        model = self.cls._auto_model
-        trainer = self.cls._trainer
+    def _exctract_features_preds(self):
+        model = self.cls
 
-        test_dataloader = trainer.get_test_dataloader(X)
         hidden_states = []
         answers = []
-        for step, inputs in enumerate(test_dataloader):
+        for step, inputs in enumerate(self.test_dataloader):
+            inputs = {k: v.cuda() for k, v in inputs.items()}
             outputs = model(**inputs, output_hidden_states=True)
             
 
