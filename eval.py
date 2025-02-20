@@ -53,6 +53,7 @@ def eval_model(config, data_args):
     ################### Evaluate ####################################
 
     eval_results = evaluate_model(config, model, datasets)
+    eval_results["true_labels"] = [example["label"] for example in datasets['test']]
 
     if config.do_ue_estimate:
         train_dataset = datasets["train"]
@@ -70,7 +71,7 @@ def eval_model(config, data_args):
 
         ue_results = ue_estimator(eval_dataset, true_labels)
         eval_results.update(ue_results)
-        
+
     resut_savepath = Path(config.result_savepath) / "test_inference.json"
     resut_savepath.parent.mkdir(parents=True, exist_ok=True)
     with open(resut_savepath, "w") as res:
