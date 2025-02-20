@@ -6,9 +6,8 @@ log = logging.getLogger()
 
 
 class UeEstimatorTrustscore:
-    def __init__(self, cls, ue_args, config, train_dataset):
+    def __init__(self, cls, config, train_dataset):
         self.cls = cls
-        self.ue_args = ue_args
         self.config = config
         self.train_dataset = train_dataset
 

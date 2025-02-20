@@ -15,6 +15,7 @@ from utils.utils_eval import (
 from utils.score_range import upper_score_dic, asap_ranges
 from utils.utils_models import create_model
 from utils.ue_estimater import create_ue_estimator
+from ue4nlp.ue_estimator_trustscore import UeEstimatorTrustscore
 from pathlib import Path
 import json
 
@@ -61,12 +62,7 @@ def eval_model(config, data_args):
         eval_dataset = datasets["test"]
         true_labels = [example["label"] for example in eval_dataset]
         
-        ue_estimator = create_ue_estimator(
-            model,
-            config.ue,
-            train_dataset=datasets["train"],
-            config=config,
-        )
+        ue_estimator = UeEstimatorTrustscore(model, config, train_dataset)
 
         ue_estimator.fit_ue(X=train_dataset, X_test=eval_dataset)
 
