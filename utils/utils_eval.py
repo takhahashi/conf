@@ -38,16 +38,13 @@ def evaluate_model(config, model, datasets):
             outputs = model(**inputs, output_hidden_states=True)
             hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
             if config.model.model_type == "hybrid":
-                reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
+                reg_score.append(outputs.reg_output.to('cpu').detach().numpy().copy())
                 logits.append(outputs.logits.to('cpu').detach().numpy().copy())
             elif config.model.model_type == "classification":
                 logits.append(outputs.logits.to('cpu').detach().numpy().copy())
             elif config.model.model_type == "gaussianregression":
                 reg_score.append(outputs.pred_score.to('cpu').detach().numpy().copy())
                 reg_lnvar.append(outputs.pred_lnvar.to('cpu').detach().numpy().copy())
-            elif config.model.model_type == "ensemble":
-                reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
-                logits.append(outputs.logits.to('cpu').detach().numpy().copy())
 
         if config.model.model_type == "hybrid":
             reg_output = np.concatenate(reg_score).tolist()
@@ -80,7 +77,7 @@ def evaluate_model(config, model, datasets):
                 inputs = {k: v.cuda() for k, v in inputs.items()}
                 outputs = m(**inputs, output_hidden_states=True)
                 hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
-                reg_scores.append(outputs.reg_score.to('cpu').detach().numpy().copy())
+                reg_scores.append(outputs.reg_output.to('cpu').detach().numpy().copy())
                 logits.append(outputs.logits.to('cpu').detach().numpy().copy())
             
             all_hidden_states.append(np.concatenate(hidden_states).tolist())
