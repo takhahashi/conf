@@ -19,14 +19,15 @@ def create_model(num_labels, model_args, data_args, config):
 
     model_base_name = model_args.model_name_or_path
     if model_args.model_type == 'ensemble':
+        model_listdir = os.listdir(model_base_name)
         model_config = AutoConfig.from_pretrained(
-            model_base_name/Path('id1'),
+            model_base_name/Path(model_listdir[0]),
             num_labels=num_labels,
             finetuning_task=data_args.task_name,
             model_type=model_args.model_type,
         )
         tokenizer = AutoTokenizer.from_pretrained(
-            model_base_name/Path('id1'),
+            model_base_name/Path(model_listdir[0]),
         )
     else:
         model_config = AutoConfig.from_pretrained(
@@ -79,7 +80,7 @@ def create_bert(
         models = []
         model_num = 0
         for model_dir in model_listdir:
-            models.appned(build_model(HybridBert, model_path_or_name / Path(model_dir), **model_kwargs))
+            models.append(build_model(HybridBert, model_path_or_name / Path(model_dir), **model_kwargs))
             model_num += 1
         
         log.info(f"loaded {model_num} HybridBERT models for ensemble")
