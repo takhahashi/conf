@@ -20,13 +20,13 @@ def create_model(num_labels, model_args, data_args, config):
     model_base_name = model_args.model_name_or_path
     if model_config.model_type == 'ensemble':
         model_config = AutoConfig.from_pretrained(
-            model_base_name/Path('id0'),
+            model_base_name/Path('id1'),
             num_labels=num_labels,
             finetuning_task=data_args.task_name,
             model_type=model_args.model_type,
         )
         tokenizer = AutoTokenizer.from_pretrained(
-            model_base_name/Path('id0'),
+            model_base_name/Path('id1'),
         )
     else:
         model_config = AutoConfig.from_pretrained(
