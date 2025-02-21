@@ -26,39 +26,68 @@ class CustomDataset(Dataset):
 def evaluate_model(config, model, datasets):
     test_dataset = CustomDataset(datasets['test'])
     test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=False, collate_fn=data_collator)
-    model = model.cuda()
-    model.eval()
-    hidden_states = []
-    reg_score = []
-    reg_lnvar = []
-    logits = []
-    for step, inputs in enumerate(test_dataloader):
-        inputs = {k: v.cuda() for k, v in inputs.items()}
-        outputs = model(**inputs, output_hidden_states=True)
-        hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
-        if config.model.model_type == "hybrid":
-            reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
-            logits.append(outputs.logits.to('cpu').detach().numpy().copy())
-        elif config.model.model_type == "classification":
-            logits.append(outputs.logits.to('cpu').detach().numpy().copy())
-        elif config.model.model_type == "gaussianregression":
-            reg_score.append(outputs.pred_score.to('cpu').detach().numpy().copy())
-            reg_lnvar.append(outputs.pred_lnvar.to('cpu').detach().numpy().copy())
+    if config.model.model_type != "ensemble":
+        model = model.cuda()
+        model.eval()
+        hidden_states = []
+        reg_score = []
+        reg_lnvar = []
+        logits = []
+        for step, inputs in enumerate(test_dataloader):
+            inputs = {k: v.cuda() for k, v in inputs.items()}
+            outputs = model(**inputs, output_hidden_states=True)
+            hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
+            if config.model.model_type == "hybrid":
+                reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
+                logits.append(outputs.logits.to('cpu').detach().numpy().copy())
+            elif config.model.model_type == "classification":
+                logits.append(outputs.logits.to('cpu').detach().numpy().copy())
+            elif config.model.model_type == "gaussianregression":
+                reg_score.append(outputs.pred_score.to('cpu').detach().numpy().copy())
+                reg_lnvar.append(outputs.pred_lnvar.to('cpu').detach().numpy().copy())
+            elif config.model.model_type == "ensemble":
+                reg_score.append(outputs.reg_score.to('cpu').detach().numpy().copy())
+                logits.append(outputs.logits.to('cpu').detach().numpy().copy())
 
-    if config.model.model_type == "hybrid":
-        reg_output = np.concatenate(reg_score).tolist()
-        logits = np.concatenate(logits).tolist()
-        hidden_states = np.concatenate(hidden_states).tolist()
-        return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
-    elif config.model.model_type == "classification":
-        logits = np.concatenate(logits).tolist()
-        hidden_states = np.concatenate(hidden_states).tolist()
-        return {"logits":logits, "hidden_states":hidden_states}
-    elif config.model.model_type == "gaussianregression":
-        pred_score = np.concatenate(reg_score).tolist()
-        pred_lnvar = np.concatenate(reg_lnvar).tolist()
-        hidden_states = np.concatenate(hidden_states).tolist()
-        return {"pred_score":pred_score, "pred_lnvar":pred_lnvar, "hidden_states":hidden_states}
+        if config.model.model_type == "hybrid":
+            reg_output = np.concatenate(reg_score).tolist()
+            logits = np.concatenate(logits).tolist()
+            hidden_states = np.concatenate(hidden_states).tolist()
+            return {"reg_output":reg_output, "logits":logits, "hidden_states":hidden_states}
+        elif config.model.model_type == "classification":
+            logits = np.concatenate(logits).tolist()
+            hidden_states = np.concatenate(hidden_states).tolist()
+            return {"logits":logits, "hidden_states":hidden_states}
+        elif config.model.model_type == "gaussianregression":
+            pred_score = np.concatenate(reg_score).tolist()
+            pred_lnvar = np.concatenate(reg_lnvar).tolist()
+            hidden_states = np.concatenate(hidden_states).tolist()
+            return {"pred_score":pred_score, "pred_lnvar":pred_lnvar, "hidden_states":hidden_states}
+        
+    elif config.model.model_type == "ensemble":
+        all_hidden_states = []
+        all_reg_scores = []
+        all_logits = []
+
+        for m in model:
+            m = m.cuda()
+            m.eval()
+            hidden_states = []
+            reg_scores = []
+            logits = []
+
+            for step, inputs in enumerate(test_dataloader):
+                inputs = {k: v.cuda() for k, v in inputs.items()}
+                outputs = m(**inputs, output_hidden_states=True)
+                hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
+                reg_scores.append(outputs.reg_score.to('cpu').detach().numpy().copy())
+                logits.append(outputs.logits.to('cpu').detach().numpy().copy())
+            
+            all_hidden_states.append(np.concatenate(hidden_states).tolist())
+            all_reg_scores.append(np.concatenate(reg_scores).tolist())
+            all_logits.append(np.concatenate(logits).tolist())
+        
+        return {"reg_output": all_reg_scores, "logits": all_logits, "hidden_states": all_hidden_states}
 
 def calc_rpp(conf, squared_error):
   n = len(conf)
@@ -89,10 +118,15 @@ def calc_predscore_conf(config, eval_results):
         int_preds = np.argmax(probs, axis=1)
         conf = [ps[int(i)] for ps, i in zip(probs, int_preds)]
         return int_preds, np.array(conf) 
-    
     elif config.model.model_type == 'gaussianregression':
         int_preds = np.round(np.array(eval_results['pred_score']).reshape(-1) * (high - low))
         conf = -np.array(eval_results['pred_lnvar'])
+        return int_preds, np.array(conf)
+    elif config.model.model_type == 'ensemble':
+        int_preds = np.round(np.mean(np.array(eval_results['reg_output']), axis=0).reshape(-1) * (high - low))
+        all_probs = [softmax(l, axis=1) for l in eval_results['logits']]
+        mean_probs = np.mean(all_probs, axis=0)
+        conf = [ps[int(i)] for ps, i in zip(mean_probs, int_preds)]
         return int_preds, np.array(conf)
 
 
