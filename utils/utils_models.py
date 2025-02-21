@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 def create_model(num_labels, model_args, data_args, config):
 
     model_base_name = model_args.model_name_or_path
-    if model_config.model_type == 'ensemble':
+    if model_args.model_type == 'ensemble':
         model_config = AutoConfig.from_pretrained(
             model_base_name/Path('id1'),
             num_labels=num_labels,
