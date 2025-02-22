@@ -39,7 +39,6 @@ def calc_rpp(conf, squared_error):
   return cnt / (n**2)
 
 def eval_model(config, data_args):
-    torch.manual_seed(config.model.id)
     log.info(f"config:{config}")
     ############### Loading dataset ######################
 
