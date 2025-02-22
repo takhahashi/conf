@@ -169,7 +169,7 @@ def train_gp(config, training_args, data_args, work_dir=None):
             GPmodel.covar_module.base_kernel.lengthscale.item(),
             GPmodel.likelihood.noise.item()
         ))
-    model_savepath = Path(config.training.output_dir) / "gp_model"
+    model_savepath = Path(config.training.output_dir)
     model_savepath.parent.mkdir(parents=True)
     torch.save(GPmodel.state_dict(), model_savepath)
 
