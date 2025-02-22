@@ -3,8 +3,8 @@ gp_model:
     id: ???
     model_name_or_path: ???
 encoder_model:
-    id: ???
-    model_type: ???
+    id: 0
+    model_type: classification
     model_name_or_path: ???
 
 defaults:
