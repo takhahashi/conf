@@ -135,7 +135,7 @@ def update_config(cfg_old, cfg_new):
 
 @hydra.main(
     config_path='configs',
-    config_name='eval',
+    config_name='gp_eval',
 )
 def main(config):
     #os.environ["WANDB_WATCH"] = "False"  # To disable Huggingface logging
