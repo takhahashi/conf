@@ -127,16 +127,17 @@ def train_gp(config, training_args, data_args, work_dir=None):
     
     train_dataset = CustomDataset(datasets['train'])
     train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=False, collate_fn=data_collator)
-    if config.model.model_type != "ensemble":
-        encoder_model = encoder_model.cuda()
-        encoder_model.eval()
-        hidden_states = []
-        labels = []
-        for step, inputs in enumerate(train_dataloader):
-            inputs = {k: v.cuda() for k, v in inputs.items()}
-            outputs = encoder_model(**inputs, output_hidden_states=True)
-            hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
-            labels.append(inputs["labels"].to('cpu').detach().numpy().copy())
+    
+    encoder_model = encoder_model.cuda()
+    encoder_model.eval()
+    hidden_states = []
+    labels = []
+    for step, inputs in enumerate(train_dataloader):
+        inputs = {k: v.cuda() for k, v in inputs.items()}
+        outputs = encoder_model(**inputs, output_hidden_states=True)
+        hidden_states.append(outputs.hidden_states[-1][:, 0, :].to('cpu').detach().numpy().copy())
+        labels.append(inputs["labels"].to('cpu').detach().numpy().copy())
+    
     hidden_states = np.concatenate(hidden_states).tolist()
     labels = np.concatenate(labels)
     train_x = torch.FloatTensor(hidden_states)
