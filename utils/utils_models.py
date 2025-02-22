@@ -16,6 +16,8 @@ import logging
 log = logging.getLogger(__name__)
 
 def create_model(num_labels, model_args, data_args, config):
+    if model_args.model_type == 'gp':
+        model_args.model_type = 'classification'
 
     model_base_name = model_args.model_name_or_path
     if model_args.model_type == 'ensemble':
