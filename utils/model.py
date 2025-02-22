@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from collections import defaultdict
 from typing import Optional, Tuple
 import torch
+import gpytorch
 
 @dataclass
 class HybridOutput(SequenceClassifierOutput):
@@ -339,3 +340,13 @@ class BertForSequenceNormalRegression(BertPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
+    
+class GPModel(gpytorch.models.ExactGP):
+    def __init__(self, train_x, train_y, likelihood, lengthscale=None):
+        super(GPModel, self).__init__(train_x, train_y, likelihood)
+        self.mean_module = gpytorch.means.ConstantMean()
+        self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel(lengthscale_prior=lengthscale))
+    def forward(self, x):
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)

@@ -4,23 +4,8 @@ from scipy.special import softmax
 from sklearn.metrics import cohen_kappa_score, roc_auc_score
 
 from utils.utils_data import data_collator
+from utils.dataset import CustomDataset
 from utils.score_range import upper_score_dic, asap_ranges
-
-class CustomDataset(Dataset):
-    def __init__(self, dataset):
-        self.dataset = dataset
-
-    def __len__(self):
-        return len(self.dataset)
-
-    def __getitem__(self, idx):
-        item = self.dataset[idx]
-        return {
-            'input_ids': item['input_ids'],
-            'token_type_ids': item['token_type_ids'],
-            'attention_mask': item['attention_mask'],
-            'label': item['label']
-        }
 
 
 def evaluate_model(config, model, datasets):
