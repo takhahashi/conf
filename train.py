@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import hydra
 import logging
 from transformers import TrainingArguments
@@ -167,8 +168,9 @@ def train_gp(config, training_args, data_args, work_dir=None):
             GPmodel.covar_module.base_kernel.lengthscale.item(),
             GPmodel.likelihood.noise.item()
         ))
-
-    torch.save(GPmodel.state_dict(), config.training.output_dir + '/gp_model')
+    model_savepath = Path(config.training.output_dir) / "gp_model"
+    model_savepath.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(GPmodel.state_dict(), model_savepath)
 
 def update_config(cfg_old, cfg_new):
     for k, v in cfg_new.items():
