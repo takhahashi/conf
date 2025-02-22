@@ -1,0 +1,5 @@
+task_name: 'asap'
+prompt_id: ???
+fold: ???
+max_seq_length: 512
+data_path: /content/drive/MyDrive/GoogleColab/1.AES/ASAP/data/fold_${data.fold}

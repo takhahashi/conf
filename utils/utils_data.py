@@ -18,19 +18,19 @@ def load_data(config):
 def load_asap(config):
     low, high = asap_ranges[config.prompt_id]
 
-    train_datapath = config.data_path + f'/fold_{config.fold}' + '/train.tsv'
+    train_datapath = config.data_path + '/train.tsv'
     train_dataf = pd.read_table(train_datapath, sep='\t')
     train_p = train_dataf[train_dataf["essay_set"] == config.prompt_id]
     train_x = train_p["essay"].tolist()
     train_y = (np.array(train_p["domain1_score"]) - low).tolist()
 
-    validation_datapath = config.data_path + f'/fold_{config.fold}' + '/dev.tsv'
+    validation_datapath = config.data_path + '/dev.tsv'
     validation_dataf = pd.read_table(validation_datapath, sep='\t')
     validation_p = validation_dataf[validation_dataf["essay_set"] == config.prompt_id]
     validation_x = validation_p["essay"].tolist()
     validation_y = (np.array(validation_p["domain1_score"]) - low).tolist()
 
-    test_datapath = config.data_path + f'/fold_{config.fold}' + '/test.tsv'
+    test_datapath = config.data_path + '/test.tsv'
     test_dataf = pd.read_table(test_datapath, sep='\t')
     test_p = test_dataf[test_dataf["essay_set"] == config.prompt_id]
     test_x = test_p["essay"].tolist()
