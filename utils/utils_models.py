@@ -77,7 +77,7 @@ def create_bert(
                 HybridBert, model_config._name_or_path, **model_kwargs
             )
             log.info("loaded HybridBERT constraction")
-    if model_config.model_type == 'ensemble':
+    elif model_config.model_type == 'ensemble':
         model_listdir = os.listdir(model_path_or_name)
         models = []
         model_num = 0
